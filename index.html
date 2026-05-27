@@ -10,9 +10,11 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             margin: 0; 
+            padding: 20px 0;
+            box-sizing: border-box;
         }
         .card { 
             background: white; 
@@ -20,7 +22,7 @@
             border-radius: 15px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
             text-align: center; 
-            width: 380px; 
+            width: 420px; 
         }
         h2 { color: #2c3e50; font-size: 20px; margin-bottom: 5px; font-weight: bold;}
         .subtitle { color: #7f8c8d; font-size: 13px; margin-bottom: 25px; text-transform: uppercase;}
@@ -32,8 +34,16 @@
         button:hover { background: #1a252f; }
         .result-box { margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 5px solid #2c3e50; text-align: left; display: none;}
         .result-item { margin-bottom: 8px; font-size: 15px; color: #334155;}
-        .result-item strong { color: #1e293b; display: inline-block; width: 100px;}
+        .result-item strong { color: #1e293b; display: inline-block; width: 110px;}
         .nrl-highlight { color: #e67e22; font-weight: bold; font-size: 16px;}
+        
+        /* Style cho bảng chi tiết hoạt động */
+        .activity-section { margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 15px; }
+        .activity-title { font-size: 14px; font-weight: bold; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .activity-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        .activity-table th { background-color: #f1f5f9; color: #475569; padding: 8px; font-weight: 600; }
+        .activity-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+        .activity-table td.score-col { text-align: right; font-weight: bold; color: #e67e22; }
     </style>
 </head>
 <body>
@@ -52,16 +62,29 @@
             <div class="result-item"><strong>Lớp:</strong> <span id="lblLop"></span></div>
             <div class="result-item"><strong>MSSV:</strong> <span id="lblMssv"></span></div>
             <div class="result-item"><strong>Tổng Số NRL:</strong> <span id="lblNrl" class="nrl-highlight"></span> ngày</div>
+            
+            <div class="activity-section">
+                <div class="activity-title">🏆 Chi tiết các hoạt động tham gia</div>
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Tên hoạt động</th>
+                            <th style="text-align: right; width: 80px;">Số ngày</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activityList">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
-        // ⚠️ DÁN ĐƯỜNG LINK WEB APP GOOGLE BẠN VỪA COPY Ở BƯỚC 1 VÀO GIỮA HAI DẤU NGOẶC KÉP DƯỚI ĐÂY
+        // ⚠️ ĐỪNG QUÊN: Dán đường link Web app Apps Script của bạn vào đây
         var apiUrl = "https://script.google.com/macros/s/AKfycbxjM6xrquUYa0K9ZcIYnMY2h1t99GuQveAkaodzdA7-at2ijTPCktzsDf5N4fo1lf4R2w/exec"; 
 
         var dataset = [];
 
-        // Hàm gọi dữ liệu chuẩn API chống lỗi bảo mật CORS hoàn toàn
         async function loadDataFromSheets() {
             try {
                 var response = await fetch(apiUrl);
@@ -96,6 +119,23 @@
                 document.getElementById('lblLop').innerText = sinhVien.class;
                 document.getElementById('lblMssv').innerText = sinhVien.mssv;
                 document.getElementById('lblNrl').innerText = sinhVien.nrl; 
+                
+                // 🌟 ĐOẠN CODE TỰ ĐỘNG IN DANH SÁCH HOẠT ĐỘNG RA BẢNG
+                var activityTableBody = document.getElementById('activityList');
+                activityTableBody.innerHTML = ""; // Xóa dữ liệu cũ đi
+                
+                if (sinhVien.activities && sinhVien.activities.length > 0) {
+                    sinhVien.activities.forEach(function(act) {
+                        var rowHtml = `<tr>
+                            <td>${act.name}</td>
+                            <td class="score-col">+${act.score}</td>
+                        </tr>`;
+                        activityTableBody.innerHTML += rowHtml;
+                    });
+                } else {
+                    activityTableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#94a3b8;">Không có chi tiết hoạt động</td></tr>`;
+                }
+
                 resultBox.style.display = 'block';
             } else {
                 resultBox.style.display = 'none';
