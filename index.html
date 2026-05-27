@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tra cứu ngày rèn luyện - Học Viện Hàng Không Việt Nam</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    
     <style>
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -28,7 +25,7 @@
         h2 { color: #2c3e50; font-size: 20px; margin-bottom: 5px; font-weight: bold;}
         .subtitle { color: #7f8c8d; font-size: 13px; margin-bottom: 25px; text-transform: uppercase;}
         #clock { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #ffffff; background: rgba(0, 0, 0, 0.2); padding: 10px 15px; border-radius: 8px; text-align: right;}
-        .status-text { font-size: 12px; margin-bottom: 15px; color: #27ae60; font-weight: 500;}
+        .status-text { font-size: 12px; margin-bottom: 15px; color: #e67e22; font-weight: 500;}
         input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #bdc3c7; border-radius: 8px; box-sizing: border-box; font-size: 15px; text-align: center; outline: none;}
         input:focus { border-color: #3498db; }
         button { width: 100%; padding: 14px; background: #2c3e50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;}
@@ -45,7 +42,7 @@
     <div class="card">
         <h2>Tra cứu ngày rèn luyện</h2>
         <div class="subtitle">Học Viện Hàng Không Việt Nam</div>
-        <div class="status-text" id="statusLabel">⏳ Đang đồng bộ dữ liệu...</div>
+        <div class="status-text" id="statusLabel">⏳ Đang đồng bộ dữ liệu trực tuyến...</div>
 
         <input type="text" id="mssvInput" placeholder="Nhập mã số sinh viên (MSSV)" disabled>
         <button id="submitBtn" onclick="traCuu()" disabled>Tra cứu</button>
@@ -59,28 +56,64 @@
     </div>
 
     <script>
-        // ⚠️ DÁN CÁC ĐƯỜNG LINK FILE GOOGLE SHEETS CỦA BẠN VÀO ĐÂY (CÁCH NHAU BẰNG DẤU PHẨY)
-        const sheetUrls = [
-            "https://docs.google.com/spreadsheets/d/1aIklaHtCE058mTqq8xtohYRfsB5TudukgyREXrMmktQ/export?format=csv", // Link file 1
-            "https://docs.google.com/spreadsheets/d/1YjpqmyouRj3E7Opi2_bO2Mn7s0crY5bcLJUjo7Lo8jY/export?format=csv",  // Thử nghiệm copy 2 lần chính link này để test tính năng cộng dồn
-        ]; 
+        // ⚠️ DÁN ĐƯỜNG LINK WEB APP GOOGLE BẠN VỪA COPY Ở BƯỚC 1 VÀO GIỮA HAI DẤU NGOẶC KÉP DƯỚI ĐÂY
+        var apiUrl = "https://script.google.com/macros/s/AKfycbxjM6xrquUYa0K9ZcIYnMY2h1t99GuQveAkaodzdA7-at2ijTPCktzsDf5N4fo1lf4R2w/exec"; 
 
-        let dataset = [];
+        var dataset = [];
 
-        function loadDataFromSheets() {
-            let loadedCount = 0;
-            dataset = []; 
-            document.getElementById('statusLabel').innerText = "⏳ Đang kết nối mạng tới Google Sheets...";
+        // Hàm gọi dữ liệu chuẩn API chống lỗi bảo mật CORS hoàn toàn
+        async function loadDataFromSheets() {
+            try {
+                var response = await fetch(apiUrl);
+                dataset = await response.json();
+                
+                if(dataset.length > 0) {
+                    document.getElementById('statusLabel').innerText = "✅ Đã đồng bộ thành công!";
+                    document.getElementById('statusLabel').style.color = '#27ae60';
+                    document.getElementById('mssvInput').disabled = false;
+                    document.getElementById('submitBtn').disabled = false;
+                } else {
+                    document.getElementById('statusLabel').innerText = "⚠️ Dữ liệu trống!";
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('statusLabel').innerText = "❌ Lỗi cấu hình link API!";
+                document.getElementById('statusLabel').style.color = '#c0392b';
+            }
+        }
 
-            sheetUrls.forEach(url => {
-                Papa.parse(url, {
-                    download: true,
-                    header: false,
-                    complete: function(results) {
-                        const rows = results.data;
-                        
-                        for (let i = 1; i < rows.length; i++) {
-                            const row = rows[i];
-                            // Cột 3 (D) phải có MSSV
-                            if (row.length >= 5 && row[3]) { 
-                                const currentMssv = row[3].replace(/"/g, '').trim
+        function traCuu() {
+            var inputMssv = document.getElementById('mssvInput').value.trim();
+            var resultBox = document.getElementById('resultBox');
+            if (!inputMssv) { alert("Vui lòng nhập MSSV trước!"); return; }
+            
+            var sinhVien = dataset.find(function(sv) {
+                return sv.mssv.toLowerCase() === inputMssv.toLowerCase();
+            });
+
+            if (sinhVien) {
+                document.getElementById('lblNghe').innerText = sinhVien.name;
+                document.getElementById('lblLop').innerText = sinhVien.class;
+                document.getElementById('lblMssv').innerText = sinhVien.mssv;
+                document.getElementById('lblNrl').innerText = sinhVien.nrl; 
+                resultBox.style.display = 'block';
+            } else {
+                resultBox.style.display = 'none';
+                alert("Không tìm thấy sinh viên có MSSV: " + inputMssv);
+            }
+        }
+
+        document.getElementById('mssvInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !this.disabled) traCuu();
+        });
+
+        function updateClock() {
+            var now = new Date();
+            document.getElementById('clock').innerHTML = now.toLocaleDateString('vi-VN') + "<br>" + now.toLocaleTimeString('vi-VN');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+        loadDataFromSheets();
+    </script>
+</body>
+</html>
