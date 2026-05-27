@@ -28,7 +28,7 @@
         h2 { color: #2c3e50; font-size: 20px; margin-bottom: 5px; font-weight: bold;}
         .subtitle { color: #7f8c8d; font-size: 13px; margin-bottom: 25px; text-transform: uppercase;}
         #clock { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #ffffff; background: rgba(0, 0, 0, 0.2); padding: 10px 15px; border-radius: 8px; text-align: right;}
-        .status-text { font-size: 12px; margin-bottom: 15px; color: #e67e22; font-weight: 500;}
+        .status-text { font-size: 12px; margin-bottom: 15px; color: #27ae60; font-weight: 500;}
         input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #bdc3c7; border-radius: 8px; box-sizing: border-box; font-size: 15px; text-align: center; outline: none;}
         input:focus { border-color: #3498db; }
         button { width: 100%; padding: 14px; background: #2c3e50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;}
@@ -45,7 +45,7 @@
     <div class="card">
         <h2>Tra cứu ngày rèn luyện</h2>
         <div class="subtitle">Học Viện Hàng Không Việt Nam</div>
-        <div class="status-text" id="statusLabel">⏳ Đang kết nối mạng tới Google Sheets...</div>
+        <div class="status-text" id="statusLabel">⏳ Đang đồng bộ dữ liệu...</div>
 
         <input type="text" id="mssvInput" placeholder="Nhập mã số sinh viên (MSSV)" disabled>
         <button id="submitBtn" onclick="traCuu()" disabled>Tra cứu</button>
@@ -54,58 +54,74 @@
             <div class="result-item"><strong>Họ và Tên:</strong> <span id="lblNghe"></span></div>
             <div class="result-item"><strong>Lớp:</strong> <span id="lblLop"></span></div>
             <div class="result-item"><strong>MSSV:</strong> <span id="lblMssv"></span></div>
-            <div class="result-item"><strong>Số NRL:</strong> <span id="lblNrl" class="nrl-highlight"></span> ngày</div>
+            <div class="result-item"><strong>Tổng Số NRL:</strong> <span id="lblNrl" class="nrl-highlight"></span> ngày</div>
         </div>
     </div>
 
     <script>
-// Thay vì 1 đường link, bạn khai báo một mảng chứa nhiều link file khác nhau
-const sheetUrls = [
-    "https://docs.google.com/spreadsheets/d/1aIklaHtCE058mTqq8xtohYRfsB5TudukgyREXrMmktQ/export?format=csv",
-    "https://docs.google.com/spreadsheets/d/1YjpqmyouRj3E7Opi2_bO2Mn7s0crY5bcLJUjo7Lo8jY/export?format=csv"
-];
-    function loadDataFromSheets() {
-    let loadedCount = 0;
-    dataset = []; // Xóa trống tập dữ liệu trước khi nạp
+        // ⚠️ BẠN HÃY ĐIỀN CÁC ĐƯỜNG LINK FILE GOOGLE SHEETS CẦN CỘNG DỒN VÀO ĐÂY
+        const sheetUrls = [
+            "https://docs.google.com/spreadsheets/d/1aIklaHtCE058mTqq8xtohYRfsB5TudukgyREXrMmktQ/export?format=csv", // Hoạt động 1
+            "https://docs.google.com/spreadsheets/d/1YjpqmyouRj3E7Opi2_bO2Mn7s0crY5bcLJUjo7Lo8jY/export?format=csv", // Thêm dấu phẩy rồi dán link Hoạt động 2 vào đây nếu có
+        ]; 
 
-    // Chạy vòng lặp qua từng đường link trong danh sách
-    sheetUrls.forEach(url => {
-        Papa.parse(url, {
-            download: true,
-            header: false,
-            complete: function(results) {
-                const rows = results.data;
-                
-                // Đọc và nạp dữ liệu của file này vào mảng tổng dataset
-                for (let i = 1; i < rows.length; i++) {
-                    const row = rows[i];
-                    if (row.length >= 5 && row[3]) { 
-                        dataset.push({
-                            name: row[1] ? row[1].trim() : "",  
-                            class: row[2] ? row[2].trim() : "", 
-                            mssv: row[3] ? row[3].trim() : "",  
-                            nrl: row[4] ? row[4].trim() : "0"   
-                        });
-                    }
-                }
+        let dataset = [];
 
-                loadedCount++;
-                // Khi đã tải xong tất cả các file dữ liệu
-                if (loadedCount === sheetUrls.length) {
-                    if(dataset.length > 0) {
-                        document.getElementById('statusLabel').innerText = `✅ Đã kết nối dữ liệu tổng cộng (${dataset.length} sinh viên)`;
-                        document.getElementById('statusLabel').style.color = '#27ae60';
-                        document.getElementById('mssvInput').disabled = false;
-                        document.getElementById('submitBtn').disabled = false;
+        function loadDataFromSheets() {
+            let loadedCount = 0;
+            dataset = []; 
+            document.getElementById('statusLabel').innerText = "⏳ Đang kết nối mạng tới Google Sheets...";
+
+            sheetUrls.forEach(url => {
+                Papa.parse(url, {
+                    download: true,
+                    header: false,
+                    complete: function(results) {
+                        const rows = results.data;
+                        
+                        for (let i = 1; i < rows.length; i++) {
+                            const row = rows[i];
+                            if (row.length >= 5 && row[3]) { 
+                                const currentMssv = row[3].trim();
+                                const currentNrl = parseFloat(row[4]) || 0; // Chuyển điểm NRL thành số dạng thập phân
+                                
+                                // Kiểm tra xem sinh viên này ĐÃ CÓ trong danh sách tổng (dataset) chưa
+                                const existingStudent = dataset.find(sv => sv.mssv.toLowerCase() === currentMssv.toLowerCase());
+                                
+                                if (existingStudent) {
+                                    // 🌟 NẾU TRÙNG MSSV: Tự động cộng dồn điểm NRL vào điểm cũ
+                                    existingStudent.nrl += currentNrl;
+                                } else {
+                                    // NẾU CHƯA CÓ: Thêm mới sinh viên này vào danh sách tổng
+                                    dataset.push({
+                                        name: row[1] ? row[1].trim() : "",  
+                                        class: row[2] ? row[2].trim() : "", 
+                                        mssv: currentMssv,  
+                                        nrl: currentNrl   
+                                    });
+                                }
+                            }
+                        }
+
+                        loadedCount++;
+                        // Khi đã đọc xong tất cả các file trong danh sách url
+                        if (loadedCount === sheetUrls.length) {
+                            if(dataset.length > 0) {
+                                document.getElementById('statusLabel').innerText = `✅ Đã kết nối & Cộng dồn xong (${dataset.length} sinh viên)`;
+                                document.getElementById('statusLabel').style.color = '#27ae60';
+                                document.getElementById('mssvInput').disabled = false;
+                                document.getElementById('submitBtn').disabled = false;
+                            }
+                        }
+                    },
+                    error: function(err) {
+                        document.getElementById('statusLabel').innerText = "❌ Lỗi tải file dữ liệu!";
+                        document.getElementById('statusLabel').style.color = '#c0392b';
                     }
-                }
-            },
-            error: function(err) {
-                console.error("Lỗi khi tải file: " + url);
-            }
-        });
-    });
-}
+                });
+            });
+        }
+
         function traCuu() {
             const inputMssv = document.getElementById('mssvInput').value.trim();
             const resultBox = document.getElementById('resultBox');
@@ -116,7 +132,8 @@ const sheetUrls = [
                 document.getElementById('lblNghe').innerText = sinhVien.name;
                 document.getElementById('lblLop').innerText = sinhVien.class;
                 document.getElementById('lblMssv').innerText = sinhVien.mssv;
-                document.getElementById('lblNrl').innerText = sinhVien.nrl;
+                // Hiển thị điểm đã được cộng dồn chuẩn xác
+                document.getElementById('lblNrl').innerText = sinhVien.nrl; 
                 resultBox.style.display = 'block';
             } else {
                 resultBox.style.display = 'none';
