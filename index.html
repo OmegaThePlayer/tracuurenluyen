@@ -35,7 +35,8 @@
         .result-box { margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 5px solid #2c3e50; text-align: left; display: none;}
         .result-item { margin-bottom: 8px; font-size: 15px; color: #334155;}
         .result-item strong { color: #1e293b; display: inline-block; width: 110px;}
-        .nrl-highlight { color: #e67e22; font-weight: bold; font-size: 16px;}
+        .nrl-highlight { color: #e67e22; font-weight: bold; font-size: 18px;}
+        .target-text { color: #64748b; font-size: 14px; font-weight: normal;}
         
         /* Style cho bảng chi tiết hoạt động */
         .activity-section { margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 15px; }
@@ -61,7 +62,7 @@
             <div class="result-item"><strong>Họ và Tên:</strong> <span id="lblNghe"></span></div>
             <div class="result-item"><strong>Lớp:</strong> <span id="lblLop"></span></div>
             <div class="result-item"><strong>MSSV:</strong> <span id="lblMssv"></span></div>
-            <div class="result-item"><strong>Tổng Số NRL:</strong> <span id="lblNrl" class="nrl-highlight"></span> ngày</div>
+            <div class="result-item"><strong>Tổng Số NRL:</strong> <span id="lblNrl" class="nrl-highlight"></span> <span class="target-text">/ 10 ngày (Đủ ĐK tốt nghiệp)</span></div>
             
             <div class="activity-section">
                 <div class="activity-title">🏆 Chi tiết các hoạt động tham gia</div>
@@ -80,7 +81,7 @@
     </div>
 
     <script>
-        // ⚠️ ĐỪNG QUÊN: Dán đường link Web app Apps Script của bạn vào đây
+        // ⚠️ Dán đường link Web app Apps Script của bạn vào giữa hai dấu ngoặc kép dưới đây
         var apiUrl = "https://script.google.com/macros/s/AKfycbxjM6xrquUYa0K9ZcIYnMY2h1t99GuQveAkaodzdA7-at2ijTPCktzsDf5N4fo1lf4R2w/exec"; 
 
         var dataset = [];
@@ -108,7 +109,21 @@
         function traCuu() {
             var inputMssv = document.getElementById('mssvInput').value.trim();
             var resultBox = document.getElementById('resultBox');
-            if (!inputMssv) { alert("Vui lòng nhập MSSV trước!"); return; }
+            
+            // 1. Kiểm tra nếu bỏ trống ô nhập liệu
+            if (!inputMssv) { 
+                alert("Vui lòng nhập MSSV trước!"); 
+                return; 
+            }
+            
+            // 2. 🌟 TÍNH NĂNG MỚI: Kiểm tra xem có chứa ký tự đặc biệt hoặc chữ cái không bằng Regex
+            // Chỉ cho phép các chữ số từ 0-9
+            var checkNumber = /^[0-9]+$/;
+            if (!checkNumber.test(inputMssv)) {
+                alert("❌ MSSV không hợp lệ! Vui lòng chỉ nhập các chữ số (Không chứa chữ cái hoặc ký tự đặc biệt).");
+                resultBox.style.display = 'none';
+                return;
+            }
             
             var sinhVien = dataset.find(function(sv) {
                 return sv.mssv.toLowerCase() === inputMssv.toLowerCase();
@@ -118,11 +133,13 @@
                 document.getElementById('lblNghe').innerText = sinhVien.name;
                 document.getElementById('lblLop').innerText = sinhVien.class;
                 document.getElementById('lblMssv').innerText = sinhVien.mssv;
+                
+                // Hiển thị số ngày rèn luyện
                 document.getElementById('lblNrl').innerText = sinhVien.nrl; 
                 
-                // 🌟 ĐOẠN CODE TỰ ĐỘNG IN DANH SÁCH HOẠT ĐỘNG RA BẢNG
+                // In danh sách hoạt động ra bảng
                 var activityTableBody = document.getElementById('activityList');
-                activityTableBody.innerHTML = ""; // Xóa dữ liệu cũ đi
+                activityTableBody.innerHTML = ""; 
                 
                 if (sinhVien.activities && sinhVien.activities.length > 0) {
                     sinhVien.activities.forEach(function(act) {
