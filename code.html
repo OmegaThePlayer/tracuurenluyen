@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra cứu ngày rèn luyện - Học Viện Hàng Không Việt Nam</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            margin: 0; 
+        }
+        .card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            text-align: center; 
+            width: 380px; 
+        }
+        h2 { color: #2c3e50; font-size: 20px; margin-bottom: 5px; font-weight: bold;}
+        .subtitle { color: #7f8c8d; font-size: 13px; margin-bottom: 25px; text-transform: uppercase;}
+        #clock { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #ffffff; background: rgba(0, 0, 0, 0.2); padding: 10px 15px; border-radius: 8px; text-align: right;}
+        .status-text { font-size: 12px; margin-bottom: 15px; color: #e67e22; font-weight: 500;}
+        input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #bdc3c7; border-radius: 8px; box-sizing: border-box; font-size: 15px; text-align: center; outline: none;}
+        input:focus { border-color: #3498db; }
+        button { width: 100%; padding: 14px; background: #2c3e50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;}
+        button:hover { background: #1a252f; }
+        .result-box { margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 5px solid #2c3e50; text-align: left; display: none;}
+        .result-item { margin-bottom: 8px; font-size: 15px; color: #334155;}
+        .result-item strong { color: #1e293b; display: inline-block; width: 100px;}
+        .nrl-highlight { color: #e67e22; font-weight: bold; font-size: 16px;}
+    </style>
+</head>
+<body>
+    <div id="clock">Đang tải...</div>
+
+    <div class="card">
+        <h2>Tra cứu ngày rèn luyện</h2>
+        <div class="subtitle">Học Viện Hàng Không Việt Nam</div>
+        <div class="status-text" id="statusLabel">⏳ Đang kết nối mạng tới Google Sheets...</div>
+
+        <input type="text" id="mssvInput" placeholder="Nhập mã số sinh viên (MSSV)" disabled>
+        <button id="submitBtn" onclick="traCuu()" disabled>Tra cứu</button>
+
+        <div class="result-box" id="resultBox">
+            <div class="result-item"><strong>Họ và Tên:</strong> <span id="lblNghe"></span></div>
+            <div class="result-item"><strong>Lớp:</strong> <span id="lblLop"></span></div>
+            <div class="result-item"><strong>MSSV:</strong> <span id="lblMssv"></span></div>
+            <div class="result-item"><strong>Số NRL:</strong> <span id="lblNrl" class="nrl-highlight"></span> ngày</div>
+        </div>
+    </div>
+
+    <script>
+        // Đường link xuất file CSV từ Google Sheets của bạn
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/1aIklaHtCE058mTqq8xtohYRfsB5TudukgyREXrMmktQ/export?format=csv"; 
+        let dataset = [];
+
+        function loadDataFromSheets() {
+            Papa.parse(sheetUrl, {
+                download: true,
+                header: false,
+                complete: function(results) {
+                    const rows = results.data;
+                    dataset = [];
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        if (row.length >= 5 && row[3]) { 
+                            dataset.push({
+                                name: row[1] ? row[1].trim() : "",  
+                                class: row[2] ? row[2].trim() : "", 
+                                mssv: row[3] ? row[3].trim() : "",  
+                                nrl: row[4] ? row[4].trim() : "0"   
+                            });
+                        }
+                    }
+                    if(dataset.length > 0) {
+                        document.getElementById('statusLabel').innerText = `✅ Đã kết nối dữ liệu (${dataset.length} sinh viên)`;
+                        document.getElementById('statusLabel').style.color = '#27ae60';
+                        document.getElementById('mssvInput').disabled = false;
+                        document.getElementById('submitBtn').disabled = false;
+                    }
+                },
+                error: function(err) {
+                    document.getElementById('statusLabel').innerText = "❌ Không thể tải dữ liệu từ Google Sheets!";
+                    document.getElementById('statusLabel').style.color = '#c0392b';
+                }
+            });
+        }
+
+        function traCuu() {
+            const inputMssv = document.getElementById('mssvInput').value.trim();
+            const resultBox = document.getElementById('resultBox');
+            if (!inputMssv) { alert("Vui lòng nhập MSSV trước!"); return; }
+            
+            const sinhVien = dataset.find(sv => sv.mssv.toLowerCase() === inputMssv.toLowerCase());
+            if (sinhVien) {
+                document.getElementById('lblNghe').innerText = sinhVien.name;
+                document.getElementById('lblLop').innerText = sinhVien.class;
+                document.getElementById('lblMssv').innerText = sinhVien.mssv;
+                document.getElementById('lblNrl').innerText = sinhVien.nrl;
+                resultBox.style.display = 'block';
+            } else {
+                resultBox.style.display = 'none';
+                alert("Không tìm thấy sinh viên có MSSV: " + inputMssv);
+            }
+        }
+
+        document.getElementById('mssvInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !this.disabled) traCuu();
+        });
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerHTML = now.toLocaleDateString('vi-VN') + "<br>" + now.toLocaleTimeString('vi-VN');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+        loadDataFromSheets();
+    </script>
+</body>
+</html>
