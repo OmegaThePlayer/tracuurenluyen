@@ -59,42 +59,53 @@
     </div>
 
     <script>
-        // Đường link xuất file CSV từ Google Sheets của bạn
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/1aIklaHtCE058mTqq8xtohYRfsB5TudukgyREXrMmktQ/export?format=csv"; 
-        let dataset = [];
+// Thay vì 1 đường link, bạn khai báo một mảng chứa nhiều link file khác nhau
+const sheetUrls = [
+    "https://docs.google.com/spreadsheets/d/1aIklaHtCE058mTqq8xtohYRfsB5TudukgyREXrMmktQ/export?format=csv",
+    "https://docs.google.com/spreadsheets/d/1YjpqmyouRj3E7Opi2_bO2Mn7s0crY5bcLJUjo7Lo8jY/export?format=csv"
+];
+    function loadDataFromSheets() {
+    let loadedCount = 0;
+    dataset = []; // Xóa trống tập dữ liệu trước khi nạp
 
-        function loadDataFromSheets() {
-            Papa.parse(sheetUrl, {
-                download: true,
-                header: false,
-                complete: function(results) {
-                    const rows = results.data;
-                    dataset = [];
-                    for (let i = 1; i < rows.length; i++) {
-                        const row = rows[i];
-                        if (row.length >= 5 && row[3]) { 
-                            dataset.push({
-                                name: row[1] ? row[1].trim() : "",  
-                                class: row[2] ? row[2].trim() : "", 
-                                mssv: row[3] ? row[3].trim() : "",  
-                                nrl: row[4] ? row[4].trim() : "0"   
-                            });
-                        }
+    // Chạy vòng lặp qua từng đường link trong danh sách
+    sheetUrls.forEach(url => {
+        Papa.parse(url, {
+            download: true,
+            header: false,
+            complete: function(results) {
+                const rows = results.data;
+                
+                // Đọc và nạp dữ liệu của file này vào mảng tổng dataset
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row.length >= 5 && row[3]) { 
+                        dataset.push({
+                            name: row[1] ? row[1].trim() : "",  
+                            class: row[2] ? row[2].trim() : "", 
+                            mssv: row[3] ? row[3].trim() : "",  
+                            nrl: row[4] ? row[4].trim() : "0"   
+                        });
                     }
+                }
+
+                loadedCount++;
+                // Khi đã tải xong tất cả các file dữ liệu
+                if (loadedCount === sheetUrls.length) {
                     if(dataset.length > 0) {
-                        document.getElementById('statusLabel').innerText = `✅ Đã kết nối dữ liệu (${dataset.length} sinh viên)`;
+                        document.getElementById('statusLabel').innerText = `✅ Đã kết nối dữ liệu tổng cộng (${dataset.length} sinh viên)`;
                         document.getElementById('statusLabel').style.color = '#27ae60';
                         document.getElementById('mssvInput').disabled = false;
                         document.getElementById('submitBtn').disabled = false;
                     }
-                },
-                error: function(err) {
-                    document.getElementById('statusLabel').innerText = "❌ Không thể tải dữ liệu từ Google Sheets!";
-                    document.getElementById('statusLabel').style.color = '#c0392b';
                 }
-            });
-        }
-
+            },
+            error: function(err) {
+                console.error("Lỗi khi tải file: " + url);
+            }
+        });
+    });
+}
         function traCuu() {
             const inputMssv = document.getElementById('mssvInput').value.trim();
             const resultBox = document.getElementById('resultBox');
