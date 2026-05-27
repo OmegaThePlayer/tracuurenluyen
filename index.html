@@ -59,10 +59,10 @@
     </div>
 
     <script>
-        // ⚠️ BẠN HÃY ĐIỀN CÁC ĐƯỜNG LINK FILE GOOGLE SHEETS CẦN CỘNG DỒN VÀO ĐÂY
+        // ⚠️ DÁN CÁC ĐƯỜNG LINK FILE GOOGLE SHEETS CỦA BẠN VÀO ĐÂY (CÁCH NHAU BẰNG DẤU PHẨY)
         const sheetUrls = [
-            "https://docs.google.com/spreadsheets/d/1aIklaHtCE058mTqq8xtohYRfsB5TudukgyREXrMmktQ/export?format=csv", // Hoạt động 1
-            "https://docs.google.com/spreadsheets/d/1YjpqmyouRj3E7Opi2_bO2Mn7s0crY5bcLJUjo7Lo8jY/export?format=csv", // Thêm dấu phẩy rồi dán link Hoạt động 2 vào đây nếu có
+            "https://docs.google.com/spreadsheets/d/1aIklaHtCE058mTqq8xtohYRfsB5TudukgyREXrMmktQ/export?format=csv", // Link file 1
+            "https://docs.google.com/spreadsheets/d/1YjpqmyouRj3E7Opi2_bO2Mn7s0crY5bcLJUjo7Lo8jY/export?format=csv",  // Thử nghiệm copy 2 lần chính link này để test tính năng cộng dồn
         ]; 
 
         let dataset = [];
@@ -81,77 +81,6 @@
                         
                         for (let i = 1; i < rows.length; i++) {
                             const row = rows[i];
+                            // Cột 3 (D) phải có MSSV
                             if (row.length >= 5 && row[3]) { 
-                                const currentMssv = row[3].trim();
-                                const currentNrl = parseFloat(row[4]) || 0; // Chuyển điểm NRL thành số dạng thập phân
-                                
-                                // Kiểm tra xem sinh viên này ĐÃ CÓ trong danh sách tổng (dataset) chưa
-                                const existingStudent = dataset.find(sv => sv.mssv.toLowerCase() === currentMssv.toLowerCase());
-                                
-                                if (existingStudent) {
-                                    // 🌟 NẾU TRÙNG MSSV: Tự động cộng dồn điểm NRL vào điểm cũ
-                                    existingStudent.nrl += currentNrl;
-                                } else {
-                                    // NẾU CHƯA CÓ: Thêm mới sinh viên này vào danh sách tổng
-                                    dataset.push({
-                                        name: row[1] ? row[1].trim() : "",  
-                                        class: row[2] ? row[2].trim() : "", 
-                                        mssv: currentMssv,  
-                                        nrl: currentNrl   
-                                    });
-                                }
-                            }
-                        }
-
-                        loadedCount++;
-                        // Khi đã đọc xong tất cả các file trong danh sách url
-                        if (loadedCount === sheetUrls.length) {
-                            if(dataset.length > 0) {
-                                document.getElementById('statusLabel').innerText = `✅ Đã kết nối & Cộng dồn xong (${dataset.length} sinh viên)`;
-                                document.getElementById('statusLabel').style.color = '#27ae60';
-                                document.getElementById('mssvInput').disabled = false;
-                                document.getElementById('submitBtn').disabled = false;
-                            }
-                        }
-                    },
-                    error: function(err) {
-                        document.getElementById('statusLabel').innerText = "❌ Lỗi tải file dữ liệu!";
-                        document.getElementById('statusLabel').style.color = '#c0392b';
-                    }
-                });
-            });
-        }
-
-        function traCuu() {
-            const inputMssv = document.getElementById('mssvInput').value.trim();
-            const resultBox = document.getElementById('resultBox');
-            if (!inputMssv) { alert("Vui lòng nhập MSSV trước!"); return; }
-            
-            const sinhVien = dataset.find(sv => sv.mssv.toLowerCase() === inputMssv.toLowerCase());
-            if (sinhVien) {
-                document.getElementById('lblNghe').innerText = sinhVien.name;
-                document.getElementById('lblLop').innerText = sinhVien.class;
-                document.getElementById('lblMssv').innerText = sinhVien.mssv;
-                // Hiển thị điểm đã được cộng dồn chuẩn xác
-                document.getElementById('lblNrl').innerText = sinhVien.nrl; 
-                resultBox.style.display = 'block';
-            } else {
-                resultBox.style.display = 'none';
-                alert("Không tìm thấy sinh viên có MSSV: " + inputMssv);
-            }
-        }
-
-        document.getElementById('mssvInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !this.disabled) traCuu();
-        });
-
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerHTML = now.toLocaleDateString('vi-VN') + "<br>" + now.toLocaleTimeString('vi-VN');
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-        loadDataFromSheets();
-    </script>
-</body>
-</html>
+                                const currentMssv = row[3].replace(/"/g, '').trim
