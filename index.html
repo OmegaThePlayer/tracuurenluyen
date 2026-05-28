@@ -5,50 +5,164 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tra cứu ngày rèn luyện - Học Viện Hàng Không Việt Nam</title>
     <style>
+        /* Biến màu sắc để dễ quản lý Light/Dark Mode */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --text-body: #334155;
+            --input-border: #bdc3c7;
+            --input-bg: #ffffff;
+            --btn-bg: #2c3e50;
+            --btn-text: #ffffff;
+            --result-bg: #f8fafc;
+            --table-th: #f1f5f9;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #2c3e50;
+            --sidebar-hover: #f1f5f9;
+            --modal-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-body: #cbd5e1;
+            --input-border: #475569;
+            --input-bg: #334155;
+            --btn-bg: #38bdf8;
+            --btn-text: #0f172a;
+            --result-bg: #334155;
+            --table-th: #475569;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #f8fafc;
+            --sidebar-hover: #1e293b;
+            --modal-bg: #1e293b;
+        }
+
         body { 
             font-family: 'Segoe UI', sans-serif; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: var(--bg-gradient);
             margin: 0; 
             padding: 20px 0;
             box-sizing: border-box;
+            transition: background 0.3s ease;
         }
         .card { 
-            background: white; 
+            background: var(--card-bg); 
             padding: 40px; 
             border-radius: 15px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
             text-align: center; 
             width: 420px; 
+            transition: background 0.3s ease, color 0.3s ease;
         }
-        h2 { color: #2c3e50; font-size: 20px; margin-bottom: 5px; font-weight: bold;}
-        .subtitle { color: #7f8c8d; font-size: 13px; margin-bottom: 25px; text-transform: uppercase;}
-        #clock { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #ffffff; background: rgba(0, 0, 0, 0.2); padding: 10px 15px; border-radius: 8px; text-align: right;}
+        h2 { color: var(--text-main); font-size: 20px; margin-bottom: 5px; font-weight: bold;}
+        .subtitle { color: var(--text-sub); font-size: 13px; margin-bottom: 25px; text-transform: uppercase;}
+        #clock { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #ffffff; background: rgba(0, 0, 0, 0.2); padding: 10px 15px; border-radius: 8px; text-align: right; z-index: 10;}
         .status-text { font-size: 12px; margin-bottom: 15px; color: #e67e22; font-weight: 500;}
-        input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #bdc3c7; border-radius: 8px; box-sizing: border-box; font-size: 15px; text-align: center; outline: none;}
-        input:focus { border-color: #3498db; }
-        button { width: 100%; padding: 14px; background: #2c3e50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;}
-        button:hover { background: #1a252f; }
-        .result-box { margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 5px solid #2c3e50; text-align: left; display: none;}
-        .result-item { margin-bottom: 8px; font-size: 15px; color: #334155;}
-        .result-item strong { color: #1e293b; display: inline-block; width: 110px;}
-        .nrl-highlight { color: #e67e22; font-weight: bold; font-size: 18px;}
-        .target-text { color: #64748b; font-size: 14px; font-weight: normal;}
         
-        /* Style cho bảng chi tiết hoạt động */
-        .activity-section { margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 15px; }
-        .activity-title { font-size: 14px; font-weight: bold; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+        input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid var(--input-border); background-color: var(--input-bg); color: var(--text-main); border-radius: 8px; box-sizing: border-box; font-size: 15px; text-align: center; outline: none; transition: all 0.3s;}
+        input:focus { border-color: #3498db; }
+        
+        button { width: 100%; padding: 14px; background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: background 0.3s;}
+        button:hover { opacity: 0.9; }
+        
+        .result-box { margin-top: 20px; padding: 15px; background: var(--result-bg); border-radius: 8px; border-left: 5px solid #2c3e50; text-align: left; display: none;}
+        .result-item { margin-bottom: 8px; font-size: 15px; color: var(--text-body);}
+        .result-item strong { color: var(--text-main); display: inline-block; width: 110px;}
+        .nrl-highlight { color: #e67e22; font-weight: bold; font-size: 18px;}
+        .target-text { color: var(--text-sub); font-size: 14px; font-weight: normal;}
+        
+        /* Bảng chi tiết hoạt động */
+        .activity-section { margin-top: 15px; border-top: 1px dashed var(--input-border); padding-top: 15px; }
+        .activity-title { font-size: 14px; font-weight: bold; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
         .activity-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        .activity-table th { background-color: #f1f5f9; color: #475569; padding: 8px; font-weight: 600; }
-        .activity-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+        .activity-table th { background-color: var(--table-th); color: var(--text-sub); padding: 8px; font-weight: 600; }
+        .activity-table td { padding: 8px; border-bottom: 1px solid var(--table-th); color: var(--text-body); }
         .activity-table td.score-col { text-align: right; font-weight: bold; color: #e67e22; }
+
+        /* Menu 3 thanh (Hamburger Menu) */
+        .menu-btn { position: absolute; top: 20px; left: 20px; font-size: 24px; color: #ffffff; cursor: pointer; background: rgba(0,0,0,0.2); padding: 5px 12px; border-radius: 8px; z-index: 100; transition: 0.3s; }
+        .menu-btn:hover { background: rgba(0,0,0,0.4); }
+        
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--sidebar-bg); box-shadow: 4px 0 15px rgba(0,0,0,0.3); z-index: 200; transition: 0.3s ease; padding-top: 60px; box-sizing: border-box; }
+        .sidebar.active { left: 0; }
+        .sidebar h3 { color: var(--text-main); text-align: center; margin-bottom: 20px; font-size: 18px; border-bottom: 1px solid var(--input-border); padding-bottom: 15px; }
+        .sidebar a, .sidebar .menu-item { display: flex; align-items: center; padding: 15px 25px; color: var(--sidebar-text); text-decoration: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .sidebar a:hover, .sidebar .menu-item:hover { background: var(--sidebar-hover); color: #3498db; }
+        
+        /* Nút tắt/mở nhanh chế độ màu */
+        .theme-toggle-btn { justify-content: space-between !important; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; margin: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #3498db; }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        /* Overlay che màn hình khi mở menu hoặc modal */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 150; display: none; backdrop-filter: blur(3px); }
+        
+        /* Bản hộp thoại hiển thị nội dung (Modal) */
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: var(--modal-bg); color: var(--text-main); padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 300; display: none; opacity: 0; transition: all 0.3s ease; max-height: 80vh; overflow-y: auto; }
+        .modal.active { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .modal h3 { margin-top: 0; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .modal-close { float: right; font-size: 20px; cursor: pointer; color: var(--text-sub); }
+        .modal-close:hover { color: #e74c3c; }
+        .modal p, .modal li { font-size: 14px; line-height: 1.6; color: var(--text-body); text-align: justify; }
+        .modal ul { padding-left: 20px; }
     </style>
 </head>
 <body>
+
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
+
     <div id="clock">Đang tải...</div>
+
+    <div class="sidebar" id="sidebar">
+        <h3>DANH MỤC</h3>
+        <a href="https://sv.vaa.edu.vn/sinh-vien-dang-nhap.html" target="_blank">🔗 1. Trang sinh viên VAA</a>
+        <div class="menu-item" onclick="openModal('modalEvent')">📅 2. Sự kiện dự kiến</div>
+        <div class="menu-item theme-toggle-btn" onclick="toggleTheme()">
+            <span>🌓 3. Chế độ Sáng / Tối</span>
+            <label class="switch">
+                <input type="checkbox" id="themeCheckbox" onchange="toggleTheme()">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="menu-item" onclick="openModal('modalRule')">📜 4. Quy định chung về NRL</div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeEverything()"></div>
+
+    <div class="modal" id="modalEvent">
+        <span class="modal-close" onclick="closeEverything()">&times;</span>
+        <h3>📅 Sự kiện dự kiến sắp tới</h3>
+        <ul>
+            <li><strong>Tuần sinh hoạt công dân đầu năm:</strong> Dự kiến diễn ra vào tháng 9 hàng năm (+2 ngày rèn luyện).</li>
+            <li><strong>Giải bóng đá học sinh - sinh viên VAA:</strong> Đăng ký tham gia hoặc cổ vũ nhiệt tình (+1 ngày rèn luyện).</li>
+            <li><strong>Chiến dịch Mùa Hè Xanh / Xuân Tình Nguyện:</strong> Phát động theo kế hoạch Đoàn Thanh niên (+3 ngày rèn luyện).</li>
+            <li><strong>Hội thảo khoa học & Hướng nghiệp hàng không:</strong> Tổ chức định kỳ tại hội trường chính (+1 ngày rèn luyện).</li>
+        </ul>
+    </div>
+
+    <div class="modal" id="modalRule">
+        <span class="modal-close" onclick="closeEverything()">&times;</span>
+        <h3>📜 Quy định chung về ngày rèn luyện (NRL)</h3>
+        <p>Ngày rèn luyện (NRL) là một trong những tiêu chí bắt buộc nhằm đánh giá kết quả rèn luyện của sinh viên Học Viện Hàng Không Việt Nam theo từng học kỳ.</p>
+        <ul>
+            <li><strong>Chỉ tiêu bắt buộc:</strong> Mỗi sinh viên cần tích lũy tối thiểu <strong>10 ngày rèn luyện</strong> trong một năm học.</li>
+            <li><strong>Cách thức tích lũy:</strong> Tham gia các hoạt động do Học viện, Khoa, Đoàn thanh niên hoặc Hội sinh viên tổ chức (mỗi hoạt động ghi nhận từ +1 đến +3 ngày tùy quy mô).</li>
+            <li><strong>Hệ quả:</strong> Thiếu ngày rèn luyện có thể dẫn đến việc bị hạ bậc xếp loại rèn luyện, ảnh hưởng trực tiếp đến xét học bổng khuyến khích, xét tốt nghiệp và các danh hiệu thi đua.</li>
+        </ul>
+    </div>
 
     <div class="card">
         <h2>Tra cứu ngày rèn luyện</h2>
@@ -73,19 +187,59 @@
                             <th style="text-align: right; width: 80px;">Số ngày</th>
                         </tr>
                     </thead>
-                    <tbody id="activityList">
-                        </tbody>
+                    <tbody id="activityList"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <script>
-        // ⚠️ Dán đường link Web app Apps Script của bạn vào giữa hai dấu ngoặc kép dưới đây
         var apiUrl = "https://script.google.com/macros/s/AKfycbxjM6xrquUYa0K9ZcIYnMY2h1t99GuQveAkaodzdA7-at2ijTPCktzsDf5N4fo1lf4R2w/exec"; 
-
         var dataset = [];
 
+        // --- HÀM XỬ LÝ MENU & MODAL ---
+        function toggleMenu() {
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+        }
+
+        function openModal(modalId) {
+            document.getElementById('sidebar').classList.remove('active');
+            var modal = document.getElementById(modalId);
+            var overlay = document.getElementById('overlay');
+            overlay.style.display = 'block';
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function closeEverything() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('overlay').style.display = 'none';
+            
+            var modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.classList.remove('active');
+                setTimeout(() => modal.style.display = 'none', 300);
+            });
+        }
+
+        // --- HÀM XỬ LÝ LIGHT / DARK MODE ---
+        function toggleTheme() {
+            var currentTheme = document.documentElement.getAttribute('data-theme');
+            var targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            document.getElementById('themeCheckbox').checked = (targetTheme === 'dark');
+            localStorage.setItem('theme', targetTheme);
+        }
+
+        var savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('themeCheckbox').checked = (savedTheme === 'dark');
+
+        // --- LOGIC TRA CỨU DỮ LIỆU GỐC ---
         async function loadDataFromSheets() {
             try {
                 var response = await fetch(apiUrl);
@@ -110,14 +264,11 @@
             var inputMssv = document.getElementById('mssvInput').value.trim();
             var resultBox = document.getElementById('resultBox');
             
-            // 1. Kiểm tra nếu bỏ trống ô nhập liệu
             if (!inputMssv) { 
                 alert("Vui lòng nhập MSSV trước!"); 
                 return; 
             }
             
-            // 2. 🌟 TÍNH NĂNG MỚI: Kiểm tra xem có chứa ký tự đặc biệt hoặc chữ cái không bằng Regex
-            // Chỉ cho phép các chữ số từ 0-9
             var checkNumber = /^[0-9]+$/;
             if (!checkNumber.test(inputMssv)) {
                 alert("❌ MSSV không hợp lệ! Vui lòng chỉ nhập các chữ số (Không chứa chữ cái hoặc ký tự đặc biệt).");
@@ -126,29 +277,25 @@
             }
             
             var sinhVien = dataset.find(function(sv) {
-                return sv.mssv.toLowerCase() === inputMssv.toLowerCase();
+                return sv.mssv.toString().toLowerCase() === inputMssv.toLowerCase();
             });
 
             if (sinhVien) {
                 document.getElementById('lblNghe').innerText = sinhVien.name;
                 document.getElementById('lblLop').innerText = sinhVien.class;
                 document.getElementById('lblMssv').innerText = sinhVien.mssv;
-                
-                // Hiển thị số ngày rèn luyện
                 document.getElementById('lblNrl').innerText = sinhVien.nrl; 
                 
-                // In danh sách hoạt động ra bảng
                 var activityTableBody = document.getElementById('activityList');
-                activityTableBody.innerHTML = ""; 
                 
                 if (sinhVien.activities && sinhVien.activities.length > 0) {
-                    sinhVien.activities.forEach(function(act) {
-                        var rowHtml = `<tr>
+                    var rowsHtml = sinhVien.activities.map(function(act) {
+                        return `<tr>
                             <td>${act.name}</td>
                             <td class="score-col">+${act.score}</td>
                         </tr>`;
-                        activityTableBody.innerHTML += rowHtml;
-                    });
+                    }).join('');
+                    activityTableBody.innerHTML = rowsHtml;
                 } else {
                     activityTableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#94a3b8;">Không có chi tiết hoạt động</td></tr>`;
                 }
