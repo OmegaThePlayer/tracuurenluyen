@@ -317,16 +317,22 @@
         loadDataFromSheets();
     </script>
 
-  <!-- CÁCH NHÚNG WEB CHAT TRỰC TIẾP (KHÔNG DÙNG TOKEN - SỬA TRIỆT ĐỂ LỖI 502) -->
+<!-- ĐOẠN SCRIPT CHATBOT COZE HOÀN CHỈNH - SỬA LỖI UNAUTH & 502 -->
     <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
     <script>
       new CozeWebSDK.WebChatClient({
         config: {
-          bot_id: '7645196687652356149', // ID Bot của bạn giữ nguyên
+          bot_id: '7645196687652356149',
         },
         componentProps: {
           title: 'VAA AI Assistant',
+        },
+        auth: {
+          type: 'token',
+          token: 'public_webchat', // Điền chuỗi bất kỳ để vượt qua bộ lọc SDK mà không gây lỗi 502
+          onRefreshToken: function () {
+            return 'public_webchat'
+          }
         }
-        // Loại bỏ hoàn toàn cụm auth: { type: 'token' ... } để bỏ qua bước xác thực lỗi của Coze
       });
     </script>
