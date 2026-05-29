@@ -317,7 +317,7 @@
         loadDataFromSheets();
     </script>
 
-    <!-- SCRIPT CHATBOT COZE - ĐÃ ĐƯỢC TÍCH HỢP TOKEN THẬT VÀ LOGO VAA -->
+<!-- SCRIPT CHATBOT COZE - ĐÃ SỬA LỖI 502 BAD GATEWAY -->
     <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
     <script>
       new CozeWebSDK.WebChatClient({
@@ -325,8 +325,8 @@
           bot_id: '7645196687652356149',
         },
         componentProps: {
-          title: 'VAA AI Assistant',
-          icon: 'https://Logodownload.org/wp-content/uploads/2023/11/vietnam-aviation-academy-logo.png' // Thêm logo Học Viện Hàng Không
+          title: 'VAA AI Assistant'
+          // Đã loại bỏ dòng icon lỗi để tránh gây sập kết nối 502
         },
         auth: {
           type: 'token',
@@ -337,5 +337,3 @@
         }
       });
     </script>
-</body>
-</html>
