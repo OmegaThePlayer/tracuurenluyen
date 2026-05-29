@@ -167,7 +167,7 @@
     <div class="card">
         <h2>Tra cứu ngày rèn luyện</h2>
         <div class="subtitle">Học Viện Hàng Không Việt Nam</div>
-        <div class="status-text" id="statusLabel">⏳ Đang đồng bộ dữ liệu trực tuyến...</div>
+        <div class="status-text" id="statusLabel">⏳</div>
 
         <input type="text" id="mssvInput" placeholder="Nhập mã số sinh viên (MSSV)" disabled>
         <button id="submitBtn" onclick="traCuu()" disabled>Tra cứu</button>
@@ -246,16 +246,16 @@
                 dataset = await response.json();
                 
                 if(dataset.length > 0) {
-                    document.getElementById('statusLabel').innerText = "✅ Đã đồng bộ thành công!";
+                    document.getElementById('statusLabel').innerText = "✅";
                     document.getElementById('statusLabel').style.color = '#27ae60';
                     document.getElementById('mssvInput').disabled = false;
                     document.getElementById('submitBtn').disabled = false;
                 } else {
-                    document.getElementById('statusLabel').innerText = "⚠️ Dữ liệu trống!";
+                    document.getElementById('statusLabel').innerText = "⚠️";
                 }
             } catch (error) {
                 console.error(error);
-                document.getElementById('statusLabel').innerText = "❌ Lỗi cấu hình link API!";
+                document.getElementById('statusLabel').innerText = "❌";
                 document.getElementById('statusLabel').style.color = '#c0392b';
             }
         }
