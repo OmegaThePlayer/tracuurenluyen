@@ -67,19 +67,19 @@
         .subtitle { color: var(--text-sub); font-size: 13px; margin-bottom: 25px; text-transform: uppercase;}
         #clock { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #ffffff; background: rgba(0, 0, 0, 0.2); padding: 10px 15px; border-radius: 8px; text-align: right; z-index: 10;}
         .status-text { font-size: 12px; margin-bottom: 15px; color: #e67e22; font-weight: 500;}
-         
+
         input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid var(--input-border); background-color: var(--input-bg); color: var(--text-main); border-radius: 8px; box-sizing: border-box; font-size: 15px; text-align: center; outline: none; transition: all 0.3s;}
         input:focus { border-color: #3498db; }
-         
+
         button { width: 100%; padding: 14px; background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: background 0.3s;}
         button:hover { opacity: 0.9; }
-         
+
         .result-box { margin-top: 20px; padding: 15px; background: var(--result-bg); border-radius: 8px; border-left: 5px solid #2c3e50; text-align: left; display: none;}
         .result-item { margin-bottom: 8px; font-size: 15px; color: var(--text-body);}
         .result-item strong { color: var(--text-main); display: inline-block; width: 110px;}
         .nrl-highlight { color: #e67e22; font-weight: bold; font-size: 18px;}
         .target-text { color: var(--text-sub); font-size: 14px; font-weight: normal;}
-         
+
         /* Bảng chi tiết hoạt động */
         .activity-section { margin-top: 15px; border-top: 1px dashed var(--input-border); padding-top: 15px; }
         .activity-title { font-size: 14px; font-weight: bold; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
@@ -91,13 +91,13 @@
         /* Menu 3 thanh (Hamburger Menu) */
         .menu-btn { position: absolute; top: 20px; left: 20px; font-size: 24px; color: #ffffff; cursor: pointer; background: rgba(0,0,0,0.2); padding: 5px 12px; border-radius: 8px; z-index: 100; transition: 0.3s; }
         .menu-btn:hover { background: rgba(0,0,0,0.4); }
-         
+
         .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--sidebar-bg); box-shadow: 4px 0 15px rgba(0,0,0,0.3); z-index: 200; transition: 0.3s ease; padding-top: 60px; box-sizing: border-box; }
         .sidebar.active { left: 0; }
         .sidebar h3 { color: var(--text-main); text-align: center; margin-bottom: 20px; font-size: 18px; border-bottom: 1px solid var(--input-border); padding-bottom: 15px; }
         .sidebar a, .sidebar .menu-item { display: flex; align-items: center; padding: 15px 25px; color: var(--sidebar-text); text-decoration: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .sidebar a:hover, .sidebar .menu-item:hover { background: var(--sidebar-hover); color: #3498db; }
-         
+
         /* Nút tắt/mở nhanh chế độ màu */
         .theme-toggle-btn { justify-content: space-between !important; }
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
@@ -109,7 +109,7 @@
 
         /* Overlay che màn hình khi mở menu hoặc modal */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 150; display: none; backdrop-filter: blur(3px); }
-         
+
         /* Bản hộp thoại hiển thị nội dung (Modal) */
         .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: var(--modal-bg); color: var(--text-main); padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 300; display: none; opacity: 0; transition: all 0.3s ease; max-height: 80vh; overflow-y: auto; }
         .modal.active { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -119,24 +119,6 @@
         .modal p, .modal li { font-size: 14px; line-height: 1.6; color: var(--text-body); text-align: justify; }
         .modal ul { padding-left: 20px; }
     </style>
-    <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
-<script>
-  new CozeWebSDK.WebChatClient({
-    config: {
-      bot_id: '7645196687652356149',
-    },
-    componentProps: {
-      title: 'Coze',
-    },
-    auth: {
-      type: 'token',
-      token: 'pat_********',
-      onRefreshToken: function () {
-        return 'pat_********'
-      }
-    }
-  });
-</script>
 </head>
 <body>
 
@@ -195,7 +177,7 @@
             <div class="result-item"><strong>Lớp:</strong> <span id="lblLop"></span></div>
             <div class="result-item"><strong>MSSV:</strong> <span id="lblMssv"></span></div>
             <div class="result-item"><strong>Tổng Số NRL:</strong> <span id="lblNrl" class="nrl-highlight"></span> <span class="target-text">/ 10 ngày</span></div>
-            
+
             <div class="activity-section">
                 <div class="activity-title">🏆 Chi tiết các hoạt động tham gia</div>
                 <table class="activity-table">
@@ -234,7 +216,7 @@
         function closeEverything() {
             document.getElementById('sidebar').classList.remove('active');
             document.getElementById('overlay').style.display = 'none';
-            
+
             var modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
                 modal.classList.remove('active');
@@ -245,7 +227,7 @@
         function toggleTheme() {
             var currentTheme = document.documentElement.getAttribute('data-theme');
             var targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
+
             document.documentElement.setAttribute('data-theme', targetTheme);
             document.getElementById('themeCheckbox').checked = (targetTheme === 'dark');
             localStorage.setItem('theme', targetTheme);
@@ -259,7 +241,7 @@
             try {
                 var response = await fetch(apiUrl);
                 dataset = await response.json();
-                
+
                 if(dataset.length > 0) {
                     document.getElementById('statusLabel').innerText = "✅";
                     document.getElementById('statusLabel').style.color = '#27ae60';
@@ -278,19 +260,19 @@
         function traCuu() {
             var inputMssv = document.getElementById('mssvInput').value.trim();
             var resultBox = document.getElementById('resultBox');
-            
+
             if (!inputMssv) { 
                 alert("Vui lòng nhập MSSV trước!"); 
                 return; 
             }
-            
+
             var checkNumber = /^[0-9]+$/;
             if (!checkNumber.test(inputMssv)) {
                 alert("❌ MSSV không hợp lệ! Vui lòng chỉ nhập các chữ số (Không chứa chữ cái hoặc ký tự đặc biệt).");
                 resultBox.style.display = 'none';
                 return;
             }
-            
+
             var sinhVien = dataset.find(function(sv) {
                 return sv.mssv.toString().toLowerCase() === inputMssv.toLowerCase();
             });
@@ -300,9 +282,9 @@
                 document.getElementById('lblLop').innerText = sinhVien.class;
                 document.getElementById('lblMssv').innerText = sinhVien.mssv;
                 document.getElementById('lblNrl').innerText = sinhVien.nrl; 
-                
+
                 var activityTableBody = document.getElementById('activityList');
-                
+
                 if (sinhVien.activities && sinhVien.activities.length > 0) {
                     var rowsHtml = sinhVien.activities.map(function(act) {
                         return `<tr>
@@ -334,3 +316,41 @@
         updateClock();
         loadDataFromSheets();
     </script>
+
+<script>
+ window.difyChatbotConfig = {
+  token: 'mW8P1fPFFfAC8JII',
+  inputs: {
+    // You can define the inputs from the Start node here
+    // key is the variable name
+    // e.g.
+    // name: "NAME"
+  },
+  systemVariables: {
+    // user_id: 'YOU CAN DEFINE USER ID HERE',
+    // conversation_id: 'YOU CAN DEFINE CONVERSATION ID HERE, IT MUST BE A VALID UUID',
+  },
+  userVariables: {
+     avatar_url: 'blob:https://gemini.google.com/a7fd90f0-7c63-49df-90a9-a97d315e9829',
+     name: 'Trợ lý Ngày Rèn Luyện',
+  },
+ }
+</script>
+<script
+ src="https://udify.app/embed.min.js"
+ id="mW8P1fPFFfAC8JII"
+ defer>
+</script>
+<style>
+  #dify-chatbot-bubble-button {
+    background-color: #1C64F2 !important;
+  }
+    componentProps: {
+      title: 'Tư vấn Điểm rèn luyện',
+      icon: 'blob:https://gemini.google.com/eefdb124-87ba-4a41-a477-c210b8413d86', // DÁN LINK ẢNH LOGO CỦA BẠN VÀO ĐÂY
+  
+  #dify-chatbot-bubble-window {
+    width: 24rem !important;
+    height: 40rem !important;
+  }
+</style>
