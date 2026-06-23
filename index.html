@@ -88,6 +88,13 @@
         .activity-table td { padding: 8px; border-bottom: 1px solid var(--table-th); color: var(--text-body); }
         .activity-table td.score-col { text-align: right; font-weight: bold; color: #e67e22; }
 
+        /* Ô lời khuyên sau khi tra cứu */
+        .advice-box { margin-top: 15px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; line-height: 1.55; text-align: left; }
+        .advice-box strong { color: var(--text-main); }
+        .advice-ok { background: rgba(39,174,96,0.12); border-left: 4px solid #27ae60; color: var(--text-body); }
+        .advice-warn { background: rgba(241,196,15,0.14); border-left: 4px solid #f1c40f; color: var(--text-body); }
+        .advice-danger { background: rgba(231,76,60,0.12); border-left: 4px solid #e74c3c; color: var(--text-body); }
+
         /* Menu 3 thanh (Hamburger Menu) */
         .menu-btn { position: absolute; top: 20px; left: 20px; font-size: 24px; color: #ffffff; cursor: pointer; background: rgba(0,0,0,0.2); padding: 5px 12px; border-radius: 8px; z-index: 100; transition: 0.3s; }
         .menu-btn:hover { background: rgba(0,0,0,0.4); }
@@ -190,6 +197,8 @@
                     <tbody id="activityList"></tbody>
                 </table>
             </div>
+
+            <div class="advice-box" id="adviceBox" style="display:none;"></div>
         </div>
     </div>
 
@@ -298,10 +307,79 @@
                 }
 
                 resultBox.style.display = 'block';
+                taoLoiKhuyen(sinhVien);
             } else {
                 resultBox.style.display = 'none';
                 alert("Không tìm thấy sinh viên có MSSV: " + inputMssv);
             }
+        }
+
+        // ====== TÍNH LỜI KHUYÊN DỰA TRÊN NĂM NHẬP HỌC & SỐ NRL ======
+        var SO_NAM_HOC = 4;   // độ dài khóa học (năm). Đổi nếu ngành dài hơn.
+        var CHI_TIEU_NRL = 10; // số NRL tối thiểu toàn khóa.
+
+        function lamTron(x) {
+            return (Math.round(x * 10) / 10).toString().replace(/\.0$/, '');
+        }
+
+        // Lấy 2 chữ số đầu của mã lớp -> năm nhập học, rồi suy ra đang học năm thứ mấy.
+        function tinhNamHoc(maLop) {
+            var match = String(maLop || '').match(/^(\d{2})/);
+            if (!match) return null;
+            var namNhapHoc = 2000 + parseInt(match[1], 10);
+            var now = new Date();
+            var elapsed = now.getFullYear() - namNhapHoc;
+            // Năm học bắt đầu khoảng tháng 9. Từ tháng 9 trở đi tính là đã lên năm mới.
+            var namThu = (now.getMonth() + 1 >= 9) ? elapsed + 1 : elapsed;
+            return { namNhapHoc: namNhapHoc, namThu: namThu };
+        }
+
+        function taoLoiKhuyen(sinhVien) {
+            var box = document.getElementById('adviceBox');
+            box.style.display = 'none';
+            box.className = 'advice-box';
+
+            var nrl = parseFloat(sinhVien.nrl) || 0;
+            var thieu = Math.max(0, CHI_TIEU_NRL - nrl);
+
+            // Đã đủ NRL -> khen, không cảnh báo.
+            if (thieu <= 0) {
+                box.classList.add('advice-ok');
+                box.innerHTML = '✅ <strong>Chúc mừng!</strong> Bạn đã hoàn thành đủ chỉ tiêu ' + CHI_TIEU_NRL +
+                    ' ngày rèn luyện toàn khóa. Hãy tiếp tục duy trì nhé!';
+                box.style.display = 'block';
+                return;
+            }
+
+            var info = tinhNamHoc(sinhVien.class);
+            if (!info || isNaN(info.namThu)) return; // không đọc được năm -> không đoán bừa
+
+            var namThu = info.namThu;
+            var conLai = SO_NAM_HOC - namThu;
+
+            // Năm cuối hoặc đã quá thời gian khóa học -> cảnh báo khẩn.
+            if (namThu >= SO_NAM_HOC) {
+                box.classList.add('advice-danger');
+                box.innerHTML = '⚠️ <strong>Lưu ý quan trọng!</strong> Theo mã lớp, bạn nhập học năm ' + info.namNhapHoc +
+                    ', hiện đang ở <strong>năm cuối / sắp tốt nghiệp</strong> (khóa học dự kiến ' + SO_NAM_HOC +
+                    ' năm) nhưng còn <strong>thiếu ' + lamTron(thieu) + ' ngày</strong> rèn luyện. ' +
+                    'Đây là điều kiện liên quan đến xét tốt nghiệp — bạn nên KHẨN TRƯƠNG đăng ký các hoạt động ' +
+                    '(Mùa Hè Xanh +3, sinh hoạt công dân +2, hội thảo +1…) và liên hệ Văn phòng Đoàn – Hội ngay trong học kỳ này.';
+                box.style.display = 'block';
+                return;
+            }
+
+            // Còn khoảng 1 năm (thường là năm 3) -> nhắc nhẹ.
+            if (conLai === 1) {
+                box.classList.add('advice-warn');
+                box.innerHTML = '🔔 <strong>Nhắc nhẹ:</strong> Bạn đang ở năm thứ ' + namThu +
+                    ', chỉ còn khoảng 1 năm là hoàn thành khóa học mà còn thiếu <strong>' + lamTron(thieu) +
+                    ' ngày</strong>. Nên chủ động tích lũy dần từ bây giờ để khỏi dồn vào năm cuối nhé.';
+                box.style.display = 'block';
+                return;
+            }
+
+            // Năm 1, 2: còn nhiều thời gian -> KHÔNG cảnh báo (theo yêu cầu).
         }
 
         document.getElementById('mssvInput').addEventListener('keypress', function(e) {
@@ -317,40 +395,56 @@
         loadDataFromSheets();
     </script>
 
-<script>
- window.difyChatbotConfig = {
-  token: 'mW8P1fPFFfAC8JII',
-  inputs: {
-    // You can define the inputs from the Start node here
-    // key is the variable name
-    // e.g.
-    // name: "NAME"
-  },
-  systemVariables: {
-    // user_id: 'YOU CAN DEFINE USER ID HERE',
-    // conversation_id: 'YOU CAN DEFINE CONVERSATION ID HERE, IT MUST BE A VALID UUID',
-  },
-  userVariables: {
-     avatar_url: 'blob:https://gemini.google.com/a7fd90f0-7c63-49df-90a9-a97d315e9829',
-     name: 'Trợ lý Ngày Rèn Luyện',
-  },
- }
-</script>
-<script
- src="https://udify.app/embed.min.js"
- id="mW8P1fPFFfAC8JII"
- defer>
-</script>
-<style>
-  #dify-chatbot-bubble-button {
-    background-color: #1C64F2 !important;
-  }
-    componentProps: {
-      title: 'Tư vấn Điểm rèn luyện',
-      icon: 'blob:https://gemini.google.com/eefdb124-87ba-4a41-a477-c210b8413d86', // DÁN LINK ẢNH LOGO CỦA BẠN VÀO ĐÂY
-  
-  #dify-chatbot-bubble-window {
-    width: 24rem !important;
-    height: 40rem !important;
-  }
-</style>
+    <!-- ===================== CHATBOT COZE AI ===================== -->
+    <!-- Thay cho Dify/Gemini cũ. Bạn cần điền 2 thông tin: BOT_ID và TOKEN (xem hướng dẫn bên dưới). -->
+
+    <!-- 1) Nạp thư viện Coze Web SDK.
+         - Dùng coze.com (bản quốc tế) thì giữ link sf-cdn.coze.com bên dưới.
+         - Nếu bạn dùng coze.cn (bản Trung Quốc) thì đổi sang:
+           https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/cn/index.js
+         Lưu ý: số phiên bản (1.2.0-beta.6) có thể thay đổi. Hãy lấy link chính xác trong
+         trang Publish > kênh "Chat SDK / Web SDK" của bot trên Coze. -->
+    <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
+
+    <script>
+        new CozeWebSDK.WebChatClient({
+            config: {
+                bot_id: '7654448946236506117',   // Bot ID của bạn (đã điền sẵn)
+                isIframe: false
+            },
+            // Xác thực BẮT BUỘC. Để test nhanh có thể dùng PAT (Personal Access Token).
+            // KHÔNG để PAT trên web công khai vì sẽ bị lộ; khi chạy thật nên dùng OAuth.
+            auth: {
+                type: 'token',
+                token: 'pat_Viiuq8hgkqdLpTGZAQnXhGqraEV21bk5RWOu1hWBegCFYUGv8dSpNd3YIFn6P8jy',  // <-- THAY bằng PAT của bạn
+                onRefreshToken: function () {
+                    return 'pat_Viiuq8hgkqdLpTGZAQnXhGqraEV21bk5RWOu1hWBegCFYUGv8dSpNd3YIFn6P8jy';
+                }
+            },
+            userInfo: {
+                id: 'sinhvien_vaa',
+                nickname: 'Sinh viên',
+                url: ''   // có thể để link ảnh avatar người dùng nếu muốn
+            },
+            ui: {
+                base: {
+                    layout: 'pc',       // 'pc' cho máy tính, 'mobile' cho điện thoại
+                    lang: 'vi',         // ngôn ngữ giao diện
+                    zIndex: 1000
+                },
+                asstBtn: { isNeed: true },   // hiện nút bong bóng chat góc dưới phải
+                chatBot: {
+                    title: 'Trợ lý Ngày Rèn Luyện',
+                    // icon: 'https://link-anh-that-cua-ban.png',  // ảnh logo: dùng link https công khai, KHÔNG dùng blob:
+                    uploadable: false,
+                    width: 390
+                },
+                header: { isShow: true, isNeedClose: true },
+                footer: { isShow: true, expressionText: 'Học Viện Hàng Không Việt Nam' }
+            }
+        });
+    </script>
+    <!-- =================== HẾT PHẦN COZE AI =================== -->
+
+</body>
+</html>
